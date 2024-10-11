@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Public Speaking App</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: #333;
+            position: relative;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 25px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .profile-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .profile-button button {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #007bff;
+        }
+
+        .persona-selector, .progress-overview, .transcription, .tone-analysis, .persona-match-score {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .progress-overview h2, .transcription h2, .tone-analysis h2, .persona-match-score h2 {
+            margin-bottom: 10px;
+            color: #007bff;
+        }
+
+        .home-screen {
+            display: block; /* Show home screen by default */
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .analysis-screen {
+            display: none; /* Initially hide analysis screen */
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .transcription p, .persona-match-score p {
+            font-size: 18px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sign Up Screen -->
+        <div class="signup-screen">
+            <h1>Sign Up</h1>
+            <form id="signup-form">
+                <input type="text" id="username" placeholder="Enter your name" required>
+                <button type="submit">Sign Up</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const signupForm = document.getElementById('signup-form');
+
+            signupForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = document.getElementById('username').value;
+                const joinDate = new Date().toLocaleDateString();
+
+                const userData = {
+                    name: username,
+                    joinDate: joinDate
+                };
+
+                // Save user data to local storage
+                localStorage.setItem('userData', JSON.stringify(userData));
+
+                // Redirect to the main screen
+                window.location.href = '/';
+            });
+        });
+    </script>
+</body>
+</html>

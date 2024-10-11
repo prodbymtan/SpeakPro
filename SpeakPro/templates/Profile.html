@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpeakPro: Real-Time Pose Tracking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #e9ecef;
+            padding-top: 30px;
+        }
+
+        #videoElement, #canvasOutput {
+            width: 80%;
+            max-width: 640px;
+            margin-top: 20px;
+            border: 2px solid #000;
+        }
+
+        button {
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 16px;
+            margin: 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+        }
+
+        #recordButton {
+            background-color: #28a745;
+            color: white;
+        }
+
+        #stopButton {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        #status, #webcamStatus {
+            margin-top: 20px;
+            color: #28a745;
+        }
+
+        #downloadLink {
+            display: none;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        video, audio {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <h1>SpeakPro: Real-Time Pose Tracking</h1>
+
+    <!-- Webcam section -->
+    <h2>Webcam Feed</h2>
+    <video id="videoElement" autoplay playsinline></video>
+    <canvas id="canvasOutput"></canvas>
+    <div id="webcamStatus">Waiting for webcam access...</div>
+
+    <script async src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.4"></script>
+    <script async src="https://docs.opencv.org/4.x/opencv.js" onload="onOpenCvReady();"></script>
+
+    <script>
+        let streaming = false;
+
+        function onOpenCvReady() {
+            const videoElement = document.getElementById('videoElement');
+            const canvasOutput = document.getElementById('canvasOutput');
+            const ctx = canvasOutput.getContext('2d');
+            const pose = new Pose({
+                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.4/${file}`
+            });
+
+            pose.setOptions({
+                modelComplexity: 1,
+                smoothLandmarks: true,
+                enableSegmentation: false,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+
+            pose.onResults(onPoseResults);
+
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((stream) => {
+                    videoElement.srcObject = stream;
+                    videoElement.play();
+                    document.getElementById('webcamStatus').innerText = 'Webcam feed started.';
+                    canvasOutput.width = videoElement.videoWidth;
+                    canvasOutput.height = videoElement.videoHeight;
+
+                    const processVideo = async () => {
+                        if (!streaming) return;
+                        await pose.send({ image: videoElement });
+                        requestAnimationFrame(processVideo);
+                    };
+                    processVideo();
+                })
+                .catch((err) => {
+                    document.getElementById('webcamStatus').innerText = `Error accessing webcam: ${err}`;
+                });
+        }
+
+        function onPoseResults(results) {
+            const ctx = document.getElementById('canvasOutput').getContext('2d');
+            const canvasOutput = document.getElementById('canvasOutput');
+
+            ctx.clearRect(0, 0, canvasOutput.width, canvasOutput.height);
+            ctx.drawImage(results.image, 0, 0, canvasOutput.width, canvasOutput.height);
+
+            if (results.poseLandmarks) {
+                drawPoseLandmarksAndSkeleton(ctx, results.poseLandmarks);
+            }
+        }
+
+        function drawPoseLandmarksAndSkeleton(ctx, landmarks) {
+            // Draw connections (skeleton)
+            const connections = Pose.POSE_CONNECTIONS;
+            for (let connection of connections) {
+                const start = landmarks[connection[0]];
+                const end = landmarks[connection[1]];
+
+                ctx.beginPath();
+                ctx.moveTo(start.x * canvasOutput.width, start.y * canvasOutput.height);
+                ctx.lineTo(end.x * canvasOutput.width, end.y * canvasOutput.height);
+                ctx.strokeStyle = 'green';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Draw landmarks (key points)
+            for (let i = 0; i < landmarks.length; i++) {
+                const x = landmarks[i].x * canvasOutput.width;
+                const y = landmarks[i].y * canvasOutput.height;
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                ctx.fillStyle = 'red';
+                ctx.fill();
+            }
+        }
+    </script>
+</body>
+</html>

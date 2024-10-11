@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpeakPro: Webcam and Voice Recorder with OpenCV</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #e9ecef;
+            padding-top: 30px;
+        }
+
+        #videoElement, #canvasOutput {
+            width: 80%;
+            max-width: 640px;
+            margin-top: 20px;
+            border: 2px solid #000;
+        }
+
+        button {
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 16px;
+            margin: 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+        }
+
+        #recordButton {
+            background-color: #28a745;
+            color: white;
+        }
+
+        #stopButton {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        #status, #webcamStatus {
+            margin-top: 20px;
+            color: #28a745;
+        }
+
+        #downloadLink {
+            display: none;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        video, audio {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <h1>SpeakPro: Webcam and OpenCV Integration</h1>
+
+    <!-- Webcam section -->
+    <h2>Webcam Feed</h2>
+    <video id="videoElement" autoplay playsinline></video>
+    <canvas id="canvasOutput"></canvas>
+    <div id="webcamStatus">Waiting for webcam access...</div>
+
+    <!-- Recorder section -->
+    <h2>Video and Voice Recorder</h2>
+    <button id="recordButton">Start Recording</button>
+    <button id="stopButton" disabled>Stop Recording</button>
+    <div id="status"></div>
+    <video id="videoPlayback" controls></video>
+    <a id="downloadLink">Download Recording</a>
+
+    <script async src="https://docs.opencv.org/4.x/opencv.js" onload="onOpenCvReady();"></script>
+    <script>
+        let streaming = false;
+        let mediaRecorder;
+        let recordedChunks = [];
+
+        function onOpenCvReady() {
+            console.log("OpenCV.js is loaded and ready.");
+            alert("OpenCV Loaded!"); // Debugging step
+
+            const videoElement = document.getElementById('videoElement');
+            const canvasOutput = document.getElementById('canvasOutput');
+            const ctx = canvasOutput.getContext('2d');
+            
+            // Get webcam stream
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((stream) => {
+                    videoElement.srcObject = stream;
+                    videoElement.play();
+                    document.getElementById('webcamStatus').innerText = 'Webcam feed started.';
+                })
+                .catch((err) => {
+                    document.getElementById('webcamStatus').innerText = `Error accessing webcam: ${err}`;
+                });
+
+            videoElement.addEventListener('play', () => {
+                // Setup canvas size based on video feed
+                canvasOutput.width = videoElement.videoWidth;
+                canvasOutput.height = videoElement.videoHeight;
+
+                // Process each video frame
+                const processVideo = () => {
+                    // Draw the video frame to the canvas
+                    ctx.drawImage(videoElement, 0, 0, canvasOutput.width, canvasOutput.height);
+
+                    // Example: Draw a rectangle to test OpenCV
+                    ctx.strokeStyle = 'red';
+                    ctx.lineWidth = 5;
+                    ctx.strokeRect(50, 50, 100, 100); // Red rectangle for visual confirmation
+
+                    requestAnimationFrame(processVideo); // Continue processing
+                };
+                processVideo();
+            });
+        }
+
+        // Start recording both video and audio
+        document.getElementById('recordButton').onclick = async () => {
+            try {
+                const videoStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                mediaRecorder = new MediaRecorder(videoStream);
+                mediaRecorder.ondataavailable = event => recordedChunks.push(event.data);
+                mediaRecorder.onstop = processRecording;
+                mediaRecorder.start();
+
+                document.getElementById('recordButton').disabled = true;
+                document.getElementById('stopButton').disabled = false;
+                document.getElementById('status').innerText = 'Recording...';
+            } catch (error) {
+                document.getElementById('status').innerText = 'Error: Unable to access the microphone or webcam. Please check your permissions.';
+            }
+        };
+
+        // Stop recording
+        document.getElementById('stopButton').onclick = () => {
+            mediaRecorder.stop();
+            document.getElementById('recordButton').disabled = false;
+            document.getElementById('stopButton').disabled = true;
+            document.getElementById('status').innerText = '';
+        };
+
+        // Process recording after stop
+        function processRecording() {
+            const videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
+            const videoUrl = URL.createObjectURL(videoBlob);
+            const videoElement = document.getElementById('videoPlayback');
+            const downloadLink = document.getElementById('downloadLink');
+
+            videoElement.src = videoUrl;
+            downloadLink.href = videoUrl;
+            downloadLink.download = 'recording.webm';
+            downloadLink.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

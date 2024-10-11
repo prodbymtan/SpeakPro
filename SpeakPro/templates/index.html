@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Speaking App</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: #333;
+            position: relative;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 25px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .profile-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .profile-button button {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #007bff;
+        }
+
+        .persona-selector, .progress-overview, .transcription, .tone-analysis, .persona-match-score {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .progress-overview h2, .transcription h2, .tone-analysis h2, .persona-match-score h2 {
+            margin-bottom: 10px;
+            color: #007bff;
+        }
+
+        .home-screen {
+            display: block; /* Show home screen by default */
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .analysis-screen {
+            display: none; /* Initially hide analysis screen */
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .transcription p, .persona-match-score p {
+            font-size: 18px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <!-- Profile Button -->
+    <div class="profile-button">
+        <a href="/templates/Profile.html" style="text-decoration: none;">
+            <button id="profile-btn">
+                <img src="/assets/profile.jpg" alt="Profile" class="profile-pic">
+            </button>
+        </a>
+    </div>
+
+    <!-- Home Screen -->
+    <div class="home-screen">
+        <h1>Welcome to SpeakPro</h1>
+        <a href="/templates/recording.html" style="padding: 10px 20px; background-color: red; color: white; border: none; border-radius: 5px; font-size: 16px; text-decoration: none; text-align: center;">
+            Start Recording
+        </a>
+        <div class="persona-selector">
+            <label for="persona">Choose Persona:</label>
+            <select id="persona">
+                <option value="persuasive">Persuasive</option>
+                <option value="calm">Calm</option>
+                <option value="motivational">Motivational</option>
+            </select>
+        </div>
+        <div class="progress-overview">
+            <h2>Your Progress</h2>
+            <!-- Progress details here -->
+        </div>
+    </div>
+
+    <!-- Analysis Screen -->
+    <div class="analysis-screen">
+        <h1>Speech Analysis</h1>
+        <div class="transcription">
+            <h2>Transcription</h2>
+            <p><!-- Transcribed text here --></p>
+        </div>
+        <div class="tone-analysis">
+            <h2>Tone Analysis</h2>
+            <!-- Tone analysis details here -->
+        </div>
+        <div class="persona-match-score">
+            <h2>Persona Match Score</h2>
+            <p><!-- Score here --></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const profileBtn = document.getElementById('profile-btn');
+            const stopBtn = document.querySelector('.stop-btn');
+            const homeScreen = document.querySelector('.home-screen');
+            const recordingScreen = document.querySelector('.recording-screen');
+            const analysisScreen = document.querySelector('.analysis-screen');
+
+            profileBtn.addEventListener('click', () => {
+                window.location.href = 'Profile.html';
+            });
+
+            stopBtn?.addEventListener('click', () => {
+                recordingScreen.style.display = 'none';
+                analysisScreen.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
